@@ -27,8 +27,12 @@
       url = "github:Mic92/nix-index-database";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    nixos-wsl = {
+      url = "github:nix-community/NixOS-WSL";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
-  outputs = { self, darwin, nix-homebrew, homebrew-bundle, homebrew-core, homebrew-cask, home-manager, nixpkgs, nixos-hardware, nix-index-database } @inputs:
+  outputs = { self, darwin, nix-homebrew, homebrew-bundle, homebrew-core, homebrew-cask, home-manager, nixpkgs, nixos-hardware, nix-index-database, nixos-wsl } @inputs:
     let
       linuxSystems = [ "x86_64-linux" "aarch64-linux" ];
       darwinSystems = [ "aarch64-darwin" ];
@@ -185,6 +189,23 @@
               home-manager.nixosModules.home-manager
               "${nixpkgs}/nixos/modules/profiles/minimal.nix"
               ./hosts/nix-deployment/configuration.nix
+            ];
+          };
+        jfdr =
+          let
+            name = "Ólafur Bjarki Bogason";
+            user = "genki";
+            host = "jfdr";
+            email = "olafur@genkiinstruments.com";
+            isWSL = true;
+          in
+          nixpkgs.lib.nixosSystem {
+            system = "aarch64-linux";
+            specialArgs = { inherit inputs user host name email isWSL; };
+            modules = [
+              nixos-wsl.nixosModules.wsl
+              home-manager.nixosModules.home-manager
+              ./hosts/gdrn
             ];
           };
       };
